@@ -1,3 +1,4 @@
+aiven-client==4.2.1
 altair==5.4.1
 attrs==24.2.0
 blinker==1.8.2
@@ -27,6 +28,7 @@ python-dateutil==2.9.0.post0
 pytz==2024.2
 referencing==0.35.1
 requests==2.32.3
+requests-toolbelt==1.0.0
 rich==13.8.1
 rpds-py==0.20.0
 six==1.16.0
