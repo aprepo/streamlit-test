@@ -3,6 +3,7 @@ from aiven.client import AivenClient
 import dialogs
 
 client = AivenClient(base_url="https://api.aiven.io")
+st.set_page_config(layout="wide")
 st.session_state.client = client
 
 if st.session_state.get('token') is None:
