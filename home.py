@@ -37,6 +37,7 @@ def get_org_dataframe():
 def refresh_events(df_accounts, df):
     all_events = pd.DataFrame([])
     for account_id in df_accounts:
+        # noinspection PyUnresolvedReferences
         events = client.get_org_events(account_id)
         if events:
             events_df = pd.DataFrame(events).merge(
