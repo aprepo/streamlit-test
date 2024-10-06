@@ -6,12 +6,15 @@ import settings
 
 
 st.set_page_config(layout="wide")       # The page config needs to be the first call to st
+
 client = AivenClient(base_url=settings.AIVEN_API_BASE_URL)
 st.session_state.client = client
 
+token_cache = TokenCache(settings.SESSION_TOKEN_CACHE_FILENAME)
+st.session_state.token_cache = token_cache
 
 def main():
-    token_cache = TokenCache(settings.SESSION_TOKEN_CACHE_FILENAME)
+    token_cache = st.session_state.get('token_cache')
     if st.session_state.get('token') is None:
         # Try to first load the cached token and continue old auth session.
         # TODO: This should check if the token is expired or not

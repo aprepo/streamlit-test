@@ -25,12 +25,13 @@ def log_in(client : AivenClient, token_cache: TokenCache):
         st.rerun()
 
 @st.dialog("logout")
-def log_out():
+def log_out(token_cache: TokenCache):
     st.title("Log out")
     st.write("Are you sure you want to log out?")
     if st.button("Yes"):
         st.session_state.email = None
         st.session_state.token = None
+        token_cache.clear_cache()
         st.rerun()
     if st.button("No"):
         st.rerun()
