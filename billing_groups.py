@@ -102,9 +102,7 @@ with st.spinner(text="In progress..."):
         values='invoice',
         aggfunc='sum'
     ).fillna(0)
-    #st.dataframe(df_pivot)
-    #st.write(df_pivot)
-
+    
     # Plot the bar chart
     st.title("Spend timeline")
     st.write("The spend in each billing group in each month.")
