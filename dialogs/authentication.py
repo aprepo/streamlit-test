@@ -1,5 +1,6 @@
 import streamlit as st
 from aiven.client import AivenClient
+from token_cache import TokenCache
 
 
 def authenticate(client : AivenClient, email : str, passwd : str, otp : str | None = None):
@@ -10,7 +11,7 @@ def authenticate(client : AivenClient, email : str, passwd : str, otp : str | No
 
 
 @st.dialog("login")
-def log_in(client : AivenClient):
+def log_in(client : AivenClient, token_cache: TokenCache):
     st.title("Log in")
     email = st.text_input("Email:")
     passwd = st.text_input("Password: ", type='password')
@@ -19,6 +20,7 @@ def log_in(client : AivenClient):
         token = authenticate(client=client, email=email, passwd=passwd, otp=otp)
         print("Authenticated without 2-factor auth")
         st.session_state.token = token
+        token_cache.put_token(st.session_state.token)
         st.session_state.email = email
         st.rerun()
 
