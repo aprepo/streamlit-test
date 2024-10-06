@@ -42,10 +42,10 @@ def load_billing_group_data():
 st.title("Billing groups")
 with st.spinner(text="In progress..."):
     df, billing_groups = load_billing_group_data()
-    pdf = pd.DataFrame(data=df)
+    df_billing_groups = pd.DataFrame(data=df)
 
     st.dataframe(
-        pdf[
+        df_billing_groups[
             [
                 'account_name',
                 'billing_group_name',
@@ -79,7 +79,7 @@ with st.spinner(text="In progress..."):
         }
     )
 
-    df_accounts = pdf[['account_name', 'invoices_with_timestamps']]
+    df_accounts = df_billing_groups[['account_name', 'invoices_with_timestamps']]
 
     # Flatten the 'invoices_with_timestamps' first, it is a list of dicts
     df_flattened = df_accounts.explode('invoices_with_timestamps').reset_index(drop=True)
