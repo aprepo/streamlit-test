@@ -54,23 +54,26 @@ with st.spinner(text="In progress..."):
                 'total_spend',
                 'invoices'
             ]
-        ],
+        ].sort_values(
+            by='total_spend',
+            ascending=False
+        ),
         column_config={
-            'account_name': "Account",
+            'account_name': "Organization",
             'billing_group_name': "Billing group",
             'billing_type': "Type",
-            'estimated_balance_usd': st.column_config.NumberColumn(
+            'estimated_balance_usd': st.column_config.ProgressColumn(
                 "Balance (in USD)",
                 help="Current estimate invoice balance in USD",
                 min_value=0,
-                step=1,
+                max_value=df_billing_groups['estimated_balance_usd'].max(),
                 format="$%.2f",
             ),
-            'total_spend': st.column_config.NumberColumn(
+            'total_spend': st.column_config.ProgressColumn(
                 "Total spend (in USD)",
                 help="Total spend over time in USD",
                 min_value=0,
-                step=1,
+                max_value=df_billing_groups['total_spend'].max(),
                 format="$%.2f",
             ),
             'invoices': st.column_config.BarChartColumn(
@@ -102,7 +105,7 @@ with st.spinner(text="In progress..."):
         values='invoice',
         aggfunc='sum'
     ).fillna(0)
-    
+
     # Plot the bar chart
     st.title("Spend timeline")
     st.write("The spend in each billing group in each month.")
