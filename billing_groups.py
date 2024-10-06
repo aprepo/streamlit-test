@@ -38,12 +38,23 @@ def load_billing_group_data():
         df['invoices_with_timestamps'].append(months)
     return df, billing_groups
 
-# Render the page. Show a spinner while the data is loading.
-st.title("Billing groups")
-with st.spinner(text="In progress..."):
-    df, billing_groups = load_billing_group_data()
-    df_billing_groups = pd.DataFrame(data=df)
+def refresh_billing_group_data_cache():
+    st.session_state.billing_group_cache = load_billing_group_data()
 
+def get_billing_group_data():
+    if st.session_state.get('billing_group_cache') is None:
+        refresh_billing_group_data_cache()
+    return st.session_state.get('billing_group_cache')
+
+def plot_spend_timeline(df_pivot):
+    st.title("Spend timeline")
+    st.write("The spend in each billing group in each month.")
+    st.bar_chart(
+        data=df_pivot,
+        stack=True,
+    )
+
+def plot_invoice_summary_table(df_billing_groups):
     st.dataframe(
         df_billing_groups[
             [
@@ -82,10 +93,21 @@ with st.spinner(text="In progress..."):
         }
     )
 
-    df_accounts = df_billing_groups[['account_name', 'invoices_with_timestamps']]
+def render_page():
+    st.title("Billing groups")
+    if st.button("Refresh"):
+        with st.spinner(text="In progress..."):
+            refresh_billing_group_data_cache()
+
+    # Get the data for the page rendering
+    df, billing_groups = get_billing_group_data()
+    df_billing_groups = pd.DataFrame(data=df)
 
     # Flatten the 'invoices_with_timestamps' first, it is a list of dicts
-    df_flattened = df_accounts.explode('invoices_with_timestamps').reset_index(drop=True)
+    df_flattened = df_billing_groups[[
+        'account_name',
+        'invoices_with_timestamps'
+    ]].explode('invoices_with_timestamps').reset_index(drop=True)
 
     # Then expand it so that we have the timestamp and invoice in separate
     # columns for the plotting of the graph
@@ -95,23 +117,19 @@ with st.spinner(text="In progress..."):
     ], axis=1)
 
     # Convert the timestamps to YYYY-MM format for better graph
-    df_expanded['formatted_timestamp'] = pd.to_datetime(df_expanded['timestamp']).dt.strftime('%Y-%m')
+    df_expanded['formatted_timestamp'] = pd.to_datetime(
+        df_expanded['timestamp']
+    ).dt.strftime('%Y-%m')
 
-    # Pivot the df so that we have invoices per month per account
-    df_pivot = df_expanded.pivot_table(
-        #index='timestamp',
-        index='formatted_timestamp',  # Use the formatted 'timestamp' as the index
-        columns='account_name',
-        values='invoice',
-        aggfunc='sum'
-    ).fillna(0)
-
-    # Plot the bar chart
-    st.title("Spend timeline")
-    st.write("The spend in each billing group in each month.")
-    st.bar_chart(
-        data=df_pivot,
-        stack=True,
+    # Draw the actual content to page
+    plot_invoice_summary_table(df_billing_groups)
+    plot_spend_timeline(
+        df_expanded.pivot_table(
+            index='formatted_timestamp',
+            columns='account_name',
+            values='invoice',
+            aggfunc='sum'
+        ).fillna(0)
     )
 
-
+render_page()
